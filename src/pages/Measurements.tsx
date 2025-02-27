@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { MeasurementCard, MeasurementProps } from "@/components/MeasurementCard";
@@ -7,76 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 
-// Mock measurements data
-const mockMeasurements: MeasurementProps[] = [
-  {
-    id: "MS-001",
-    name: "John Smith",
-    date: "2023-04-15",
-    lastUpdated: "2023-04-15",
-    measurements: [
-      { label: "Chest", value: "42 in" },
-      { label: "Waist", value: "34 in" },
-      { label: "Hips", value: "40 in" },
-      { label: "Sleeve", value: "25 in" },
-      { label: "Shoulder", value: "18 in" },
-      { label: "Neck", value: "16 in" },
-      { label: "Inseam", value: "32 in" },
-      { label: "Thigh", value: "24 in" },
-    ],
-  },
-  {
-    id: "MS-002",
-    name: "Emma Johnson",
-    date: "2023-04-20",
-    lastUpdated: "2023-04-20",
-    measurements: [
-      { label: "Bust", value: "36 in" },
-      { label: "Waist", value: "29 in" },
-      { label: "Hips", value: "38 in" },
-      { label: "Sleeve", value: "23.5 in" },
-      { label: "Shoulder", value: "16 in" },
-      { label: "Back Length", value: "17 in" },
-      { label: "Front Length", value: "16 in" },
-    ],
-  },
-  {
-    id: "MS-003",
-    name: "Michael Brown",
-    date: "2023-04-18",
-    lastUpdated: "2023-05-02",
-    measurements: [
-      { label: "Chest", value: "44 in" },
-      { label: "Waist", value: "36 in" },
-      { label: "Hips", value: "42 in" },
-      { label: "Sleeve", value: "26 in" },
-      { label: "Shoulder", value: "19 in" },
-      { label: "Neck", value: "17 in" },
-      { label: "Inseam", value: "34 in" },
-    ],
-  },
-  {
-    id: "MS-004",
-    name: "Sophia Chen",
-    date: "2023-05-01",
-    lastUpdated: "2023-05-01",
-    measurements: [
-      { label: "Bust", value: "34 in" },
-      { label: "Waist", value: "27 in" },
-      { label: "Hips", value: "36 in" },
-      { label: "Sleeve", value: "22 in" },
-      { label: "Shoulder", value: "15 in" },
-      { label: "Back Length", value: "16 in" },
-    ],
-  },
-];
-
 const Measurements = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [measurements, setMeasurements] = useState<MeasurementProps[]>([]);
   const navigate = useNavigate();
   
+  useEffect(() => {
+    // Load measurements from localStorage when component mounts
+    const storedMeasurements = localStorage.getItem("measurements");
+    if (storedMeasurements) {
+      setMeasurements(JSON.parse(storedMeasurements));
+    }
+  }, []);
+  
   // Filter measurements based on search term
-  const filteredMeasurements = mockMeasurements.filter((measurement) => 
+  const filteredMeasurements = measurements.filter((measurement) => 
     measurement.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     measurement.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -124,7 +69,7 @@ const Measurements = () => {
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground">No measurements found matching your criteria.</p>
+              <p className="text-muted-foreground">No measurements found. Add your first measurement to get started.</p>
             </div>
           )}
         </div>

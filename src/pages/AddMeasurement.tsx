@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ArrowLeft, 
   Ruler, 
@@ -21,12 +20,13 @@ import {
   Scissors
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MeasurementProps } from "@/components/MeasurementCard";
 
 const AddMeasurement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [customerName, setCustomerName] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [measurements, setMeasurements] = useState({
     bust: "",
     waist: "",
@@ -61,7 +61,41 @@ const AddMeasurement = () => {
       return;
     }
     
-    // In a real application, this would save to a database
+    // Generate a new measurement ID
+    const measurementId = `MS-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    
+    // Format measurements for storage
+    const formattedMeasurements = Object.entries(measurements)
+      .filter(([key, value]) => value && key !== "notes") // Skip empty values and notes
+      .map(([key, value]) => ({
+        label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+        value: `${value} in`
+      }));
+    
+    // Create the new measurement object
+    const newMeasurement: MeasurementProps = {
+      id: measurementId,
+      name: customerName,
+      date: date,
+      lastUpdated: date,
+      measurements: formattedMeasurements,
+    };
+    
+    // Retrieve existing measurements from localStorage
+    const existingMeasurements = localStorage.getItem("measurements");
+    let measurementsArray: MeasurementProps[] = [];
+    
+    if (existingMeasurements) {
+      measurementsArray = JSON.parse(existingMeasurements);
+    }
+    
+    // Add new measurement to array
+    measurementsArray.unshift(newMeasurement);
+    
+    // Store updated array in localStorage
+    localStorage.setItem("measurements", JSON.stringify(measurementsArray));
+    
+    // Show success toast
     toast({
       title: "Measurements saved",
       description: `Measurements for ${customerName} have been saved successfully.`
