@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { MeasurementCard, MeasurementProps } from "@/components/MeasurementCard";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ const mockMeasurements: MeasurementProps[] = [
 
 const Measurements = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   
   // Filter measurements based on search term
   const filteredMeasurements = mockMeasurements.filter((measurement) => 
@@ -91,7 +93,11 @@ const Measurements = () => {
               Store and manage customer measurements
             </p>
           </div>
-          <Button className="mt-4 md:mt-0" size="sm">
+          <Button 
+            className="mt-4 md:mt-0" 
+            size="sm"
+            onClick={() => navigate("/measurements/add")}
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Measurement
           </Button>
