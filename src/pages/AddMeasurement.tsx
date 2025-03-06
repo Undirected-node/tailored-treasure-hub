@@ -48,10 +48,9 @@ const AddMeasurement = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form
+  
     if (!customerName) {
       toast({
         title: "Missing information",
@@ -60,28 +59,45 @@ const AddMeasurement = () => {
       });
       return;
     }
-    
-    // Generate a new measurement ID
+  
     const measurementId = `MS-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
-    
-    // Format measurements for storage
+  
+    const newMeasurement = {
+      id: measurementId,
+      customerName: customerName,
+      date: date,
+      ...measurements, // Spreads all measurement fields into the object
+    };
     const formattedMeasurements = Object.entries(measurements)
-      .filter(([key, value]) => value && key !== "notes") // Skip empty values and notes
+      .filter(([key, value]) => value && key !== "notes") 
       .map(([key, value]) => ({
-        label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+        label: key.charAt(0).toUpperCase() + key.slice(1), 
         value: `${value} in`
       }));
-    
-    // Create the new measurement object
-    const newMeasurement: MeasurementProps = {
-      id: measurementId,
-      name: customerName,
-      date: date,
-      lastUpdated: date,
-      measurements: formattedMeasurements,
-    };
-    
-    // Retrieve existing measurements from localStorage
+    try {
+      const response = await fetch("http://localhost:8080/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMeasurement)
+      });
+  
+      if (!response.ok) throw new Error("Failed to save data");
+  
+      toast({
+        title: "Measurements saved",
+        description: `Measurements for ${customerName} saved successfully.`
+      });
+  
+      setTimeout(() => {
+        navigate("/measurements");
+      }, 1500);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save measurements.",
+        variant: "destructive"
+      });
+    }
     const existingMeasurements = localStorage.getItem("measurements");
     let measurementsArray: MeasurementProps[] = [];
     
@@ -89,23 +105,20 @@ const AddMeasurement = () => {
       measurementsArray = JSON.parse(existingMeasurements);
     }
     
+    const newMeasurement2: MeasurementProps = {
+      id: measurementId,
+      name: customerName,
+      date: date,
+      lastUpdated: date,
+      measurements: formattedMeasurements,
+    };
     // Add new measurement to array
-    measurementsArray.unshift(newMeasurement);
+    measurementsArray.unshift(newMeasurement2);
     
     // Store updated array in localStorage
     localStorage.setItem("measurements", JSON.stringify(measurementsArray));
-    
-    // Show success toast
-    toast({
-      title: "Measurements saved",
-      description: `Measurements for ${customerName} have been saved successfully.`
-    });
-    
-    // Navigate back to measurements list
-    setTimeout(() => {
-      navigate("/measurements");
-    }, 1500);
   };
+  
 
   const measurementFields = [
     { name: "bust", label: "Bust/Chest", icon: <Shirt className="text-muted-foreground" /> },

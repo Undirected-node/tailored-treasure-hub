@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,16 @@ export interface OrderProps {
   status: OrderStatus;
   price: number;
   onClick?: () => void;
+  order: {
+    id: string;
+    customerName: string;
+    orderDate: string;
+    deliveryDate: string;
+    items: string;
+    status: string;
+    price: string;
+  };
+  onStatusChange: (newStatus: string) => void;
 }
 
 export function OrderCard({
@@ -22,7 +31,7 @@ export function OrderCard({
   customer,
   orderDate,
   deliveryDate,
-  items,
+  items = [],
   status,
   price,
   onClick
@@ -33,6 +42,7 @@ export function OrderCard({
       case "In Progress": return "bg-yellow-100 text-yellow-800";
       case "Ready": return "bg-green-100 text-green-800";
       case "Delivered": return "bg-gray-100 text-gray-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
   
@@ -60,7 +70,7 @@ export function OrderCard({
           <div className="mt-3">
             <h4 className="text-sm font-medium text-muted-foreground mb-1">Items:</h4>
             <ul className="text-sm space-y-1">
-              {items.map((item, index) => (
+              {items && items.map((item, index) => (
                 <li key={index} className="flex items-center">
                   <span className="w-2 h-2 rounded-full bg-primary mr-2"></span>
                   {item}

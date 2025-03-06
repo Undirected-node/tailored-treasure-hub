@@ -158,7 +158,7 @@ const Profile = () => {
                       <div>4:00 PM</div>
                       
                       <div>Sunday</div>
-                      <div colSpan={2}>Closed</div>
+                      
                     </div>
                     
                     {isEditing && (
